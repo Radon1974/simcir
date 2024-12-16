@@ -44,12 +44,16 @@
 /* цвет линии соединения между коннекторами */
 .simcir-connector {
   stroke-width: 1;
-  stroke: #0000ff;	/* пурпурно-синий */
+  stroke: #000000;	/* черный */
   stroke-linecap: round;
 }
 
 .simcir-connector-hot {
-  /* stroke: #ff0000; */
+  stroke: #ff0000; 	/* красный */
+}
+
+.simcir-connector-isolated {
+  stroke: #0000ff; 	/* пурпурно-синий */
 }
 
 .simcir-joint-point {
@@ -83,6 +87,18 @@
 }
 
 .simcir-node-type-out {
+  fill: #cccccc;	/* светло серый темнее */
+}
+
+.simcir-node-state-isolated {
+  fill: #0000ff;	/* синий */
+}
+
+.simcir-node-state-yesPressure {
+  fill: #ff0000;	/* красный */
+}
+
+.simcir-node-state-noPressure {
   fill: #ffffff;	/* белый */
 }
 
@@ -97,6 +113,7 @@
 
 .simcir-node-hover {
   stroke: #ffff00;	/* оттенок желто-зеленый */
+  fill: #008000;
 }
 
 .simcir-node-label {

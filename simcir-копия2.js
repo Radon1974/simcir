@@ -1,12 +1,12 @@
 //
 // SimcirJS
 //
+// Copyright (c) 2014 Kazuhiko Arase
 //
+// URL: http://www.d-project.com/
 //
-//
-//
-//
-//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
 //
 
 
@@ -14,7 +14,9 @@
 
 var simcir = {};
 
-
+//
+// https://github.com/kazuhikoarase/lessQuery
+//
 simcir.$ = function() {
 
 	var debug = location.hash == '#debug';
@@ -860,12 +862,8 @@ simcir.$ = function() {
 	//description: надпись на входе(выходе) из элемента(снаружи элемента)
 	//headless: true, false (заголовок)
 	var createNode = function (type, label, description, headless) {
-		if (type == 'in' || type == 'out') {
 	    var $node = createSVGElement('g').
-	        attr('simcir-node-type', type); //создание SVG
-		} else {
-			var $node = createSVGElement('circle');	//'out2' - узел не должен на экране рисоваться
-		}
+	        attr('simcir-node-type', type); //Создание SVG
 	    if (!headless) {
 	        $node.attr('class', 'simcir-node');
 	    }
@@ -876,10 +874,9 @@ simcir.$ = function() {
 	        description: description,
 	        headless: headless
 	    });
-	    if (type == 'in' || type == 'out' || type == 'out2') {	//'out2' - узел на экране не отображается
+	    if (type == 'in' || type == 'out') {
 	        controller($node, createOutputNodeController(node)); //создание входного узла
-	    } 
-		else {
+	    } else {
 	        throw 'unknown type:' + type;
 	    }
 	    return $node;
@@ -1040,7 +1037,11 @@ simcir.$ = function() {
 	//Создание входных и выходных узлов контроллера
 	var createOutputNodeController = function(node) {
 		var inputs = [];
+		var inputsPointX = [];
+		var inputsPointY = [];
 		var output2 = [];	//тест
+		var PointX = [];
+		var PointY = [];
 		/*var super_setValue = node.setValue;
 		var setValue = function(value) {
 		  //console.log ('value:', value);
@@ -1057,7 +1058,6 @@ simcir.$ = function() {
 			}*/
 
 			if (inNode != node) { //проверка на соединение коннектора с одним и тем же узлом
-
 				inNode.setOutput(node); //добавление ко входному узлу выходного узла
 				inputs.push(inNode); //добавление входного узла с выходным узлом в inputs
 			}
@@ -1070,6 +1070,28 @@ simcir.$ = function() {
 			console.log ('inputs:', inputs);
 			console.log ('inNode.getOutput2:', inNode.getOutput2());*/
 		};
+		//добавление новой точки коннектора	(подключение к узлу, посредством точек)																  
+		//var connectToPoint = function (x, y) {
+		//	inputsPointX.push(x);
+		//	inputsPointY.push(y);
+		//	//console.log ('x:', inputsPointX);
+		//	//console.log ('y:', inputsPointY);
+		//};
+		
+		//var getToPointX = function () {
+		//	return PointX;
+		//};
+		
+		//var getToPointY = function () {
+		//	return PointY;
+		//};		
+		
+		//var inputsPoint = function () {
+		//	for (let i = 0; i < inputsPointX.length; i++) {
+		//	PointX.push(inputsPointX[i]);
+		//	PointY.push(inputsPointY[i]);
+		//	};
+		//};
 		//удаление  коннектора (отключение)
 		var disconnectFrom = function (inNode) {
 			/*if (inNode.getOutput() != node) {
@@ -1104,6 +1126,7 @@ simcir.$ = function() {
 		var input = null;
 		var setInput = function (outNode) {
 			input = outNode;
+			//console.log("вх коннектор", input)
 		};
 		var getInput = function () {
 			return input;
@@ -1113,9 +1136,21 @@ simcir.$ = function() {
 		
 		
 		
-		var setOutput = function (outNode) {
+		var setOutput = function (outNode) {	//соединение входного узла с выходным узлом коннектором
+			//outNode.push(inputsPointX);
+			//outNode.push(inputsPointY);
+			//outNode.inputsPoint();
 			output = outNode;
 			output2.push(outNode); //тест
+			//for (let i = 0; i < inputsPointX.length; i++) {
+			//PointX.push(inputsPointX[i]);
+			//PointY.push(inputsPointY[i]);
+			//};
+			//console.log("вых коннектор", output);
+			//console.log("вых коннектор2", output2);
+			//console.log("PointX", PointX);
+			//console.log("PointY", PointY);
+			
 		};
 
 		var clearOutput = function (outNode) { //тест
@@ -1141,11 +1176,17 @@ simcir.$ = function() {
 		    getInput: getInput,
 		    setOutput: setOutput,
 		    clearOutput: clearOutput,
+			//inputsPoint: inputsPoint,
 		    getOutput: getOutput,
 		    getOutput2: getOutput2, //тест
 		    //setValue: setValue,
 		    getInputs: getInputs,
 		    connectTo: connectTo,
+			//connectToPoint: connectToPoint,
+			//getToPointX: getToPointX,
+			//getToPointY: getToPointY,
+			//inputsPointX: inputsPointX,
+			//inputsPointY: inputsPointY,
 		    disconnectFrom: disconnectFrom,
 		    disconnectFrom2: disconnectFrom2
 		});
@@ -1201,21 +1242,6 @@ simcir.$ = function() {
 	    //Создание выходного узла контроллера
 	    var addOutput = function (label, description) {
 	        var $node = createNode('out', label, description, device.headless);
-
-	        //Анализ выходного узла на наличие сигнала
-	        $node.on('nodeValueChange', function (event) {
-	            device.$ui.trigger('outputValueChange');
-	        });
-	        if (!device.headless) {
-	            device.$ui.append($node);
-	        }
-	        var node = controller($node);
-	        outputs.push(node); //добавление выходного узла
-	        return node;
-	    };
-		//Неотображаемый узел на полотне
-		var addNoOutput = function (label, description) {
-	        var $node = createNode('out2', label, description, device.headless);
 
 	        //Анализ выходного узла на наличие сигнала
 	        $node.on('nodeValueChange', function (event) {
@@ -1429,7 +1455,6 @@ simcir.$ = function() {
 	    return $.extend(device, {
 	        addInput: addInput,
 	        addOutput: addOutput,
-			addNoOutput: addNoOutput,
 	        getInputs: getInputs,
 	        getOutputs: getOutputs,
 	        disconnectAll: disconnectAll,
@@ -1447,17 +1472,9 @@ simcir.$ = function() {
   
 	//Создание коннектора с координатами x1, y1, x2, y2
 	var createConnector = function (x1, y1, x2, y2) {
-		
-	    return (Math.abs(x1 - x2) > Math.abs(y1 - y2)) ? 
-			createSVGElement('polyline').
-			attr('points', x1 + ',' + y1 + ' ' + Math.round((x2 - x1) / 2 + x1) + ',' + y1 + ' ' + Math.round((x2 - x1) / 2 + x1) + ',' + y2 + ' ' + x2 + ',' + y2).
-			attr('fill', 'none').
-			attr('class', 'simcir-connector') : 
-			createSVGElement('polyline').
-			attr('points', x1 + ',' + y1 + ' ' + x1 + ',' + Math.round((y2 - y1) / 2 + y1) + ' ' + x2 + ',' + Math.round((y2 - y1) / 2 + y1) + ' ' + x2 + ',' + y2).
-			attr('fill', 'none').
-			attr('class', 'simcir-connector');
-
+	    return createSVGElement('path').
+	    attr('d', 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2).
+	    attr('class', 'simcir-connector');
 	};
 
 	var connect = function ($node1, $node2) {
@@ -1472,6 +1489,11 @@ simcir.$ = function() {
 	    //}
 	};
 
+	//var connectPoint = function ($node1, x, y) {
+	    //controller($node2).connectToPoint(controller($node1), x, y); //подключение узлов
+		//controller($node1).connectToPoint(x, y);
+		//console.log ('node1:', controller($node1));
+	//};
 	var buildCircuit = function (data, headless, scope) {
 		var $devices = [];
 		var $devMap = {};
@@ -1502,7 +1524,6 @@ simcir.$ = function() {
 				//updateValueNodePressSource();	//проверить соединение с источником давления
 			}
 		});
-		//console.log("devices:", $devices)
 		return $devices;
 	};
 
@@ -1594,6 +1615,7 @@ simcir.$ = function() {
 			moveTo(
 				event.pageX - dragPoint.x,
 				event.pageY - dragPoint.y);
+
 		};
 		var dlg_mouseUpHandler = function (event) {
 			$(document).off('mousemove', dlg_mouseMoveHandler);
@@ -2049,6 +2071,8 @@ simcir.$ = function() {
 		}, data);
 
 		var scope = {};
+		var lostNode;	//последний редактируемый узел
+		var modeConnect = false;
 
 		var workspaceWidth = data.width;		//задание ширины главного полотна
 		var workspaceHeight = data.height;		//задание высоты главного полотна
@@ -2171,7 +2195,6 @@ simcir.$ = function() {
 		var addDevice = function ($dev) {
 			$devicePane.append($dev);
 			$dev.trigger('deviceAdd');
-			//console.log("полотно:", $dev)
 		};
 
 		//Удаление устройств с полотна
@@ -2244,7 +2267,8 @@ simcir.$ = function() {
 
 				//Добавление коннектора из 'in' узла	тестирование
 				$.each(device.getInputs(), function(i, inNode) {
-					
+				//console.log("inNodeX:", inNode.inputsPointX);
+				//console.log("inNodeY:", inNode.inputsPointY);
 					for (var k in inNode.getOutput2()) {
 						if (inNode.getOutput2()[k] != null) {
 							if (inNode != inNode.getOutput2()[k]) { //проверка на соединение коннектора с одним и тем же узлом
@@ -2267,28 +2291,70 @@ simcir.$ = function() {
 				
 				//Добавление коннектора из 'out' узла	тестирование
 				$.each(device.getOutputs(), function (i, inNode) {
-
+				//console.log("inNodeX2:", inNode.inputsPointX);
+				//console.log("inNodeY2:", inNode.inputsPointY);
+					//Рисование линий не присоединенных к конечному узлу
+					if (modeConnect) {
+						var p1 = offset(inNode.$ui);
+						var Xe = p1.x;
+						var Ye = p1.y;
+							for (let i = 0; i < inNode.inputsPointX.length; i++) {
+								var $conn = createConnector(Xe, Ye, inNode.inputsPointX[i], inNode.inputsPointY[i]); //создать коннектор с координатами
+								$connectorPane.append($conn); //добавление коннектора на панель коннекторов
+								Xe = inNode.inputsPointX[i];
+								Ye = inNode.inputsPointY[i];
+							}
+					}
+					//---------------------------------------------------
+					
 					for (var k in inNode.getOutput2()) {
 						if (inNode.getOutput2()[k] != null) {
 							if (inNode != inNode.getOutput2()[k]) { //проверка на соединение коннектора с одним и тем же узлом
 								var p1 = offset(inNode.$ui);
 								var p2 = offset(inNode.getOutput2()[k].$ui);
-								var $conn = createConnector(p1.x, p1.y, p2.x, p2.y); //создать коннектор с координатами p1.x, p1.y, p2.x, p2.y
+								var Xe = p1.x;
+								var Ye = p1.y;
+								
+								for (var i in inNode.getToPointX()) {
+									var $conn = createConnector(Xe, Ye, inNode.getToPointX()[i], inNode.getToPointY()[i]); //создать коннектор с координатами
+									if (inNode.getValue() == 1 && inNode.getOutput2()[k].getValue() == 1) { //если не равно 0, присвоить класс подключено
+										$conn.addClass('simcir-connector-hot');
+									}
+									if (inNode.getStatus() == 2 && inNode.getOutput2()[k].getStatus() == 2) { //если не равно 0, присвоить класс подключено
+										$conn.addClass('simcir-connector-isolated');
+									}
+									$connectorPane.append($conn); //добавление коннектора на панель коннекторов
+									Xe = inNode.getToPointX()[i];
+									Ye = inNode.getToPointY()[i];
+									console.log(i, "getToPointX:", inNode.getToPointX());
+									console.log(i, "getToPointY:", inNode.getToPointY());
+								}
+								
+								var $conn = createConnector(Xe, Ye, p2.x, p2.y); //создать коннектор с координатами (рисование последней линии)
 								if (inNode.getValue() == 1 && inNode.getOutput2()[k].getValue() == 1) { //если не равно 0, присвоить класс подключено
-									$conn.addClass('simcir-connector-hot');
-								}
-								if (inNode.getStatus() == 2 && inNode.getOutput2()[k].getStatus() == 2) { //если не равно 0, присвоить класс подключено
-									$conn.addClass('simcir-connector-isolated');
-								}
-								$connectorPane.append($conn); //добавление коннектора на панель коннекторов
+										$conn.addClass('simcir-connector-hot');
+									}
+									if (inNode.getStatus() == 2 && inNode.getOutput2()[k].getStatus() == 2) { //если не равно 0, присвоить класс подключено
+										$conn.addClass('simcir-connector-isolated');
+									}
+									$connectorPane.append($conn); //добавление коннектора на панель коннекторов
 							}
 						}
+
+						
 					}
+					
+
 
 				});
+
+		
+				
+				
+				
 			});
 		};
-		//Установка статусов, значений для свечи,источника давления и изолированного участка
+
 		var clearStatusNode = function () {
 			$devicePane.children('.simcir-device').each(function () { //панель устройств
 				var device = controller($(this));
@@ -2296,13 +2362,11 @@ simcir.$ = function() {
 				//Входные узлы очистка статуса (присваивание статуса 2 - изолированный участок)
 				$.each(device.getInputs(), function (i, inNode) {
 					if (device.getInputs()[0] != null) {
-						if (device.getInputs()[0].getOn() == 4) { //свеча
+						if (device.getInputs()[0].getOn() == 4) { //связь со свечой
 							inNode.setStatus(0);
 							inNode.setValue(0);
 						} else {
-							if (inNode.getValue() == 1) {
-								inNode.setStatus(2);
-							}
+							inNode.setStatus(2);
 						}
 					}
 				});
@@ -2310,13 +2374,11 @@ simcir.$ = function() {
 				//Выходные узлы очистка статуса (присваивание статуса 2 - изолированный участок)
 				$.each(device.getOutputs(), function (i, inNode) {
 					if (device.getOutputs()[0] != null) {
-						if (device.getOutputs()[0].getOn() == 3) { //источник давления
+						if (device.getOutputs()[0].getOn() == 3) { //связь с источником
 							inNode.setStatus(1);
 							inNode.setValue(1);
 						} else {
-							if (inNode.getValue() == 1) {
-								inNode.setStatus(2);
-							}
+							inNode.setStatus(2);
 						}
 					}
 				});
@@ -2332,13 +2394,13 @@ simcir.$ = function() {
 				$devicePane.children('.simcir-device').each(function () { //панель устройств
 					var device = controller($(this));
 
-					//Входные узлы (установка параметров соединения по коннекторам)
+					//Входные узлы
 					$.each(device.getInputs(), function (i, inNode) {
 
 						for (var k in inNode.getOutput2()) {
 							if (inNode.getOutput2()[k] != null) {
 
-								//Установка статуса и нет давления  (узел (любой) <-- узел вход)
+								//Установка статуса и нет давления  (узел <-- узел вход)
 								if (inNode.getStatus() == 0) { //связь со свечой
 									inNode.getOutput2()[k].setStatus(0); //присвоить статус
 									if (inNode.getOutput2()[k].getValue() != 0) { //проверка на изменение
@@ -2347,7 +2409,7 @@ simcir.$ = function() {
 									}
 								}
 
-								//Установка статуса и нет давления  (узел вход <-- узел (любой))
+								//Установка статуса и нет давления  (узел вход <-- узел)
 								if (device.getOutputs()[0] != null) {
 									if (inNode.getOutput2()[k].getStatus() == 0 && device.getOutputs()[0].getOn() != 3) { //связь со свечой
 										inNode.setStatus(0); //присвоить статус
@@ -2365,13 +2427,11 @@ simcir.$ = function() {
 								console.log('************************');*/
 
 							};
-							
-
 						}
 
 					});
 
-					//Выходные узлы (установка параметров соединения по коннекторам)
+					//Выходные узлы
 					$.each(device.getOutputs(), function (i, inNode) {
 
 						for (var k in inNode.getOutput2()) {
@@ -2404,12 +2464,11 @@ simcir.$ = function() {
 							};
 						}
 					});
-					
-					//Входные узлы (установка параметров соединения через устройства)
+
 					for (var k in device.getInputs()) {
 						if (device.getInputs()[k] != null) {
 							//console.log('device.getInputs (свеча):', device.getInputs());
-							if (device.getInputs()[k].getStatus() == 0 && device.getInputs()[k].getOn() == 1) { //если соединение со свечой и открыто
+							if (device.getInputs()[k].getStatus() == 0 && device.getInputs()[k].getOn() == 1) { //если открыто и соединение со свечой
 								if (device.getOutputs()[k].getStatus() != 0) { //проверка на изменение
 									device.getOutputs()[k].setStatus(0); //присвоить выходу устройства статус соединения со свечой
 									device.getOutputs()[k].setValue(0); //присвоить отсутствие давления
@@ -2418,12 +2477,11 @@ simcir.$ = function() {
 							}
 						}
 					}
-					
-					//Выходные узлы (установка параметров соединения через устройства)
+
 					for (var k in device.getOutputs()) {
 						if (device.getOutputs()[k] != null) {
 							//console.log('device.getOutputs (свеча):', device.getOutputs());
-							if (device.getOutputs()[k].getStatus() == 0 && device.getOutputs()[k].getOn() == 1) { //если соединение со свечой и открыто
+							if (device.getOutputs()[k].getStatus() == 0 && device.getOutputs()[k].getOn() == 1) { //если открыто и соединение со свечой
 								if (device.getInputs()[k].getStatus() != 0) { //проверка на изменение
 									device.getInputs()[k].setStatus(0); //присвоить входу устройства статус соединения со свечой
 									device.getInputs()[k].setValue(0); //присвоить отсутствие давления
@@ -2480,7 +2538,6 @@ simcir.$ = function() {
 								console.log('value:', inNode.getValue(), 'status:', inNode.getStatus());
 								console.log('************************');*/
 							};
-
 						}
 					});
 
@@ -2549,7 +2606,7 @@ simcir.$ = function() {
 			} while (changeStatus);
 			/*console.log('Выполнено');*/
 		};
-		//Загрузка панели toolbox
+
 		var loadToolbox = function (data) {
 			var vgap = 8;
 			var y = vgap;
@@ -2684,11 +2741,10 @@ simcir.$ = function() {
 		// операции с мышью
 		var dragMoveHandler = null;
 		var dragCompleteHandler = null;
-		// выравнивание устройства
 		var adjustDevice = function ($dev) {
-			var pitch = unit / 2;
+			var pitch = unit / 2;	//размер сетки привязки
 			var adjust = function (v) {
-				return Math.round(v / pitch) * pitch;
+				return Math.round(v / pitch) * pitch;	//привязка к сетке координат
 			};
 			var pos = transform($dev);
 			var size = controller($dev).getSize();
@@ -2698,36 +2754,14 @@ simcir.$ = function() {
 						workspaceHeight - size.height));
 			transform($dev, adjust(x), adjust(y));
 		};
-		// выравнивание координат по оси X
-		var adjustDeviceX = function (adjustPos) {
-			var pitch = unit / 2;
-			var adjust = function (v) {
-				return Math.round(v / pitch) * pitch;
-			};
-			
-			
-			var x = Math.max(0, Math.min(adjustPos,	workspaceWidth - toolboxWidth));
-
-			return adjust(x);
-		};
-		// выравнивание координат по оси Y
-		var adjustDeviceY = function (adjustPos) {
-			var pitch = unit / 2;
-			var adjust = function (v) {
-				return Math.round(v / pitch) * pitch;
-			};
-			
-
-			var y = Math.max(0, Math.min(adjustPos,	workspaceHeight));
-			return adjust(y);
-		};
 		
 		//Операции с коннекторами
 		var beginConnect = function (event, $target) {
 			var $srcNode = $target.closest('.simcir-node');
 			var off = $workspace.offset();
 			var pos = offset($srcNode);
-			var pos2 = offset($srcNode);
+			var device = controller($srcNode);
+			
 			//Мешает подключаться от out узла к другим узлам
 			/*if ($srcNode.attr('simcir-node-type') == 'in') {
 			disconnect($srcNode);
@@ -2735,12 +2769,20 @@ simcir.$ = function() {
 			dragMoveHandler = function (event) {
 				var x = event.pageX - off.left;
 				var y = event.pageY - off.top;
-				$temporaryPane.children().remove();	//стереть все временные коннекторы
-				$temporaryPane.append(createConnector(pos.x, pos.y, x, y) );	//отобразить коннектор при рисовании мышью
-				pos2.x = x;	//присвоить координату x положения мыши
-				pos2.y = y;	//присвоить координату y положения мыши
+				$temporaryPane.children().remove();
+				var Xe = pos.x;
+				var Ye = pos.y;
+				if (device.inputsPointX != null && device.inputsPointX.length > 0) {
+					var Xe = device.inputsPointX[device.inputsPointX.length - 1];
+					var Ye = device.inputsPointY[device.inputsPointY.length - 1];
+				}
+				$temporaryPane.append(createConnector(Xe, Ye, x, y)); //рисовать коннектор с координатами (рисование последней линии)
+				modeConnect = true;
 			};
+			
 			dragCompleteHandler = function (event) {
+				var x = event.pageX - off.left;
+				var y = event.pageY - off.top;
 				$temporaryPane.children().remove();
 				var $dst = $(event.target);
 				if (isActiveNode($dst)) {
@@ -2749,43 +2791,14 @@ simcir.$ = function() {
 					clearStatusNode(); //очистить статус
 					updateValueNodePressOutput(); //проверить соединение с выходом
 					updateValueNodePressSource(); //проверить соединение с источником давления
+					modeConnect = false;
 					updateConnectors(); //обновить коннекторы
-				} else {	//скорее всего ненужная ветвь
-				
-					$toolboxDevicePane.children('.simcir-device').each(function () {
-						var $dev = $(this);
-						var device = controller($dev);
-						//var pos = transform($dev);
-						//var deviceDef = clone(device.deviceDef);
-						//deviceDef.id = device.id;
-						//deviceDef.x = pos.x;
-						//deviceDef.y = pos.y;
-						//deviceDef.label = device.getLabel();
-						//var state = device.getState();
-						//if (state != null) {
-						//	deviceDef.state = state;
-						//}
-						//devices.push(deviceDef);
-						//Установка соединителя, когда рисуешь коннектор
-						/*if (device.deviceDef.type == "Соединитель") {
-							
-							var $dstDev = beginNewDevice2(event, $dev, pos2);
-							var device = controller($dstDev);
-							if (device === undefined) {
-							} else {
-								$.each(device.getInputs(), function (i, inNode) {
-									connect($srcNode, inNode.$ui); //соединить узлы коннектором
-								});
-							}
+				} else {
+					//connectPoint($srcNode, x, y);	//соединить точки коннектора
+					modeConnect = true;
+					//lostNode = $srcNode;
+					updateConnectors(); //обновить коннекторы
 
-							clearStatusNode(); //очистить статус
-							updateValueNodePressOutput(); //проверить соединение с выходом
-							updateValueNodePressSource(); //проверить соединение с источником давления
-							updateConnectors(); //обновить коннекторы
-
-						};*/
-					});
-				
 				};
 			};
 		};
@@ -2793,17 +2806,14 @@ simcir.$ = function() {
 		//------Выбор мыши при перетаскивании элемента на полотно из библиотеки------
 		var beginNewDevice = function (event, $target) {
 			var $dev = $target.closest('.simcir-device');
-			//console.log("dev1:", $dev)
 			var pos = offset($dev);
 			$dev = createDevice(controller($dev).deviceDef, false, scope);
-			//console.log("dev2:", $dev)
 			transform($dev, pos.x, pos.y);
 			$temporaryPane.append($dev);
 			var dragPoint = {
 				x: event.pageX - pos.x,
 				y: event.pageY - pos.y
 			};
-			
 			dragMoveHandler = function (event) {
 				transform($dev,
 					event.pageX - dragPoint.x,
@@ -2817,58 +2827,12 @@ simcir.$ = function() {
 					transform($dev, pos.x - toolboxWidth, pos.y);
 					adjustDevice($dev);
 					addDevice($dev);
-					
 				} else {
 					$dev.trigger('dispose');
-					
 				}
 			};
 		};
 		//-----------------------------------------------------------------------------
-		
-		//------Добавление соединителя на полотно из библиотеки------
-		var beginNewDevice2 = function (event, $target, pos3) {
-			var $dev = $target.closest('.simcir-device');
-			//console.log("dev1:", $dev)
-			var pos = offset($dev);
-			$dev = createDevice(controller($dev).deviceDef, false, scope);
-			//console.log("dev2:", $dev)
-			//transform($dev, pos.x, pos.y);
-			//$temporaryPane.append($dev);
-			var dragPoint = {
-				x: event.pageX - pos.x,
-				y: event.pageY - pos.y
-			};
-			//console.log("подготовка на полотно2");
-			//console.log("event.pageX", event.pageX);
-			//console.log("event.pageY", event.pageY);
-			//dragMoveHandler = function (event) {
-			//	transform($dev,
-			//		event.pageX - dragPoint.x,
-			//		event.pageY - dragPoint.y);
-			//};
-			//dragCompleteHandler = function (event) {
-				var $target = $(event.target);
-				if ($target.closest('.simcir-toolbox').length == 0) {
-					$dev.detach();
-					//var pos = transform($dev);
-					//transform($dev, pos.x - toolboxWidth, pos.y);
-									
-					transform($dev, pos3.x - toolboxWidth - unit/2, pos3.y - unit/2);
-					//$temporaryPane.append(createConnector(pos.x, pos.y, pos.x, y)); //обновить коннектор при перемещении мышью
-									
-					//transform($dev, event.pageX - toolboxWidth - unit, event.pageY - unit);
-					adjustDevice($dev);
-					addDevice($dev);
-					//console.log("добавление на полотно2");
-				} else {
-					$dev.trigger('dispose');
-					//console.log("не добавление на полотно2");
-				}
-			//};
-			return $dev;
-		};
-		//-----------------------------------------------------------------------------		
 		
 		//Выбор элементов рамкой на полотне
 		var $selectedDevices = [];
@@ -2929,7 +2893,7 @@ simcir.$ = function() {
 		};
 		//-----------------------------------------------------------------
 		
-		//Есть ли выбор элементов мышкой (рамкой)?
+		//Есть ли выбор элемента мышкой?
 		var beginSelectDevice = function (event, $target) {
 			var intersect = function (rect1, rect2) {
 				return !(
@@ -2954,6 +2918,7 @@ simcir.$ = function() {
 				y: event.pageY - off.top
 			};
 			dragMoveHandler = function (event) {
+
 				deselectAll();
 				var p2 = {
 					x: event.pageX - off.left,
@@ -2972,7 +2937,6 @@ simcir.$ = function() {
 					};
 					if (intersect(selRect, devRect)) {
 						addSelected($dev);
-						//console.log("dev selected:", $dev);
 					}
 				});
 				$temporaryPane.children().remove();
@@ -2981,7 +2945,7 @@ simcir.$ = function() {
 					attr('class', 'simcir-selection-rect'));
 			};
 		};
-
+		//Нажата клавиша мыши
 		var mouseDownHandler = function (event) {
 			event.preventDefault();
 			event.stopPropagation();
@@ -2990,26 +2954,32 @@ simcir.$ = function() {
 				return;
 			}
 			if (isActiveNode($target)) {
-				beginConnect(event, $target);
+				beginConnect(event, $target);		//Производится соединение с другим устройством (через коннекторы)
 			} else if ($target.closest('.simcir-device').length == 1) {
 				if ($target.closest('.simcir-toolbox').length == 1) {
-					beginNewDevice(event, $target);
+					beginNewDevice(event, $target);		//Новое устройство
 				} else {
-					beginMoveDevice(event, $target);
+					beginMoveDevice(event, $target);	//Перемещение устройства
 				}
 			} else {
-				beginSelectDevice(event, $target);
+				beginSelectDevice(event, $target);		//Выбор устройства
 			}
+			if (modeConnect) {
+				beginConnect(event, lostNode);		//Производится соединение с другим устройством (через коннекторы)
+			}	
+			console.log(modeConnect)
 			$(document).on('mousemove', mouseMoveHandler);
 			$(document).on('mouseup', mouseUpHandler);
+
 		};
-		
+		//Перемещение мыши		
 		var mouseMoveHandler = function (event) {
-			if (dragMoveHandler != null) {
+			if (dragMoveHandler != null) {	//Если есть перемещение объекта мышью
 				dragMoveHandler(event);
 			}
+
 		};
-		
+		//Отжата клавиша мыши		
 		var mouseUpHandler = function (event) {
 			if (dragCompleteHandler != null) {
 				dragCompleteHandler(event);
@@ -3191,17 +3161,4 @@ simcir.$ = function() {
 	});
 }(simcir);
 
-//Статус
-//status = 0 - связь с выходом давления (свеча) 'simcir-connector'
-//status = 1 - связь с источником давления 'simcir-connector-hot'
-//status = 2 - изорированный 'simcir-connector-isolated'
 
-//Давление
-//value = 0 - нет давления
-//value = 1 - есть давление
-
-//Состояние
-//On = 0 - закрыто
-//On = 1 - открыто
-//On = 3 - источник давления
-//On = 4 - свеча

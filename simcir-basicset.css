@@ -17,16 +17,8 @@
   fill: #ccccff;
 }
 
-.simcir-basicset-switch-button-depressed {
-  fill: #ccccff;
-  fill-opacity: 0;
-  stroke-opacity: 0;
-}
-
 .simcir-basicset-switch-button-pressed {
   fill: #9999cc;
-  fill-opacity: 0;
-  stroke-opacity: 0;
 }
 
 .simcir-basicset-symbol {

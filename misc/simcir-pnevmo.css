@@ -1,0 +1,37 @@
+/*
+ * SimcirJS - pnevmo
+ *
+ * Copyright (c) 2014 Kazuhiko Arase
+ *
+ * URL: http://www.d-project.com/
+ *
+ * Licensed under the MIT license:
+ *  http://www.opensource.org/licenses/mit-license.php
+ */
+
+.simcir-pnevmo-com {
+  fill: #ffcccc;	/* очень светлый оттенок красного */
+}
+
+.simcir-pnevmo-exit {
+  fill: #ffffff;	/* очень светлый оттенок красного */
+}
+
+.simcir-pnevmo-switch {
+  fill: #ccccff;	/* очень светлый оттенок пурпурно-синего */
+}
+
+.simcir-pnevmo-switch-button-open {
+  fill: #ccccff;	/* очень светлый оттенок пурпурно-синего */
+}
+
+.simcir-pnevmo-switch-button-close {
+  fill: #808080;	/* серый */
+}
+
+.simcir-pnevmo-symbol {
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
