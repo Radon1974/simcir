@@ -1,27 +1,20 @@
-SimcirJS
-
-Copyright (c) 2014 Kazuhiko Arase
-
-URL: http://www.d-project.com/
-
-Licensed under the MIT license:
-  http://www.opensource.org/licenses/mit-license.php
+Simcir
 
 
--- System Requirements
+-- Системные требования
 
-Web browser that supports HTML5
+Веб-браузер, поддерживающий HTML5
 
--- Contents
+-- Содержание
 
-README.txt           -- this file
-simcir.js            -- Simcir core javascript (required)
-simcir.css           -- Simcir core stylesheet (required)
-simcir-basicset.js   -- Simcir basicset javascript (optional)
-simcir-basicset.css  -- Simcir basicset stylesheet (optional)
-simcir-library.js    -- Simcir library javascript
-                        (optional, requires basicset)
-sample.html          -- sample of live circuit
-blank.html           -- blank template
-get_and_set.html     -- sample that get and set a circuit directly
-                        with jQuery
+README.txt           -- этот файл
+simcir.js             -- основной файл Simcir (требуется)
+simcir.css           -- основная таблица стилей Simcir (требуется)
+simcir-basicset.js   -- JavaScript-файл базового набора Simcir (необязательно)
+simcir-basicset.css  -- таблица стилей базового набора Simcir (необязательно)
+simcir-library.js    -- JavaScript-файл библиотеки Simcir
+                        (необязательно, требуется базовый набор)
+sample.html          — пример живой схемы
+blank.html           — пустой шаблон
+get_and_set.html     — пример, который получает и устанавливает схему напрямую
+                        с помощью jQuery
